@@ -1,0 +1,113 @@
+<html>
+  <head>
+    <style>
+#fridge td {
+  width: 100px;
+  height: 100px;
+}
+.infinity {
+    position: relative;
+    box-sizing: content-box;
+    transition: transform 0.5s;
+  }
+.infinity:before,
+.infinity:after {
+  content: "";
+  box-sizing: content-box;
+  position: absolute;
+  top: 30%;
+  left: 10%;
+  width: 20%;
+  height: 20%;
+  border: 15px solid grey;
+  border-radius: 50% 50% 0 50%;
+  transform: rotate(-45deg);
+}
+.infinity:after {
+  left: auto;
+  right: 10%;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(45deg);
+}
+.locked {
+  transform-origin: 50% 55%;
+  transform: rotate(90deg);
+}
+.pins td {
+  background: red;
+}
+.pins td.open {
+  background: green;
+}
+    </style>
+    <script>
+window.onload = () => {
+  let initTumblers = [
+          [false, true, false, false],
+          [true, false, false, true],
+          [false, false, true, false],
+          [true, true, false, false],
+  ];
+
+  let tumblers = [];
+  let switchTumbler = (i, j) => {
+    let td = tumblers[i][j];
+    if (td.classList.contains("locked")) {
+      td.classList.remove("locked");
+    } else {
+      td.classList.add("locked");
+    }
+  };
+
+  let pins = [];
+  let updatePin = (j) => {
+    pins[j].classList.add("open");
+    if (tumblers.map(row => row[j].classList.contains("locked")).reduce((x, y) => x || y)) {
+      pins[j].classList.remove("open");
+    }
+  };
+  let updatePins = () => Array(4).fill(null).map((_, j) => updatePin(j));
+
+  let table = document.getElementById("fridge");
+  let tr = document.createElement("tr");
+  tr.classList.add("pins");
+  for (let j = 0; j < 4; j++) {
+    let td = document.createElement("td");
+    tr.appendChild(td);
+    pins.push(td);
+  }
+  table.appendChild(tr);
+  for (let i = 0; i < 4; i++) {
+    let row = [];
+
+    let tr = document.createElement("tr");
+    for (let j = 0; j < 4; j++) {
+      let td = document.createElement("td");
+      td.classList.add("infinity");
+      if (initTumblers[i][j]) {
+        td.classList.add("locked");
+      }
+      td.addEventListener("click", () => {
+        for (let k = 0; k < 4; k++) {
+          switchTumbler(i, k);
+          switchTumbler(k, j);
+        }
+        switchTumbler(i, j);
+        updatePins();
+      });
+
+      tr.appendChild(td);
+      row.push(td);
+    }
+    table.appendChild(tr);
+    tumblers.push(row);
+  }
+  updatePins();
+};
+    </script>
+  </head>
+  <body>
+    <table id="fridge">
+    </table>
+  </body>
+</html>
